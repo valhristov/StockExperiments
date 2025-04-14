@@ -47,6 +47,24 @@ public class Stock_Handle_Arrival
         [
             new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(200), }
         ]);
+
+        _stock.Transactions.Should().BeEquivalentTo(
+        [
+            new
+            {
+                Quantities = new object[]
+                {
+                    new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                },
+            },
+            new
+            {
+                Quantities = new object[]
+                {
+                    new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                },
+            }
+        ]);
     }
 
     [Fact]
@@ -62,6 +80,24 @@ public class Stock_Handle_Arrival
         [
             new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
             new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), },
+        ]);
+
+        _stock.Transactions.Should().BeEquivalentTo(
+        [
+            new
+            {
+                Quantities = new object[]
+                {
+                    new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                },
+            },
+            new
+            {
+                Quantities = new object[]
+                {
+                    new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), }
+                },
+            }
         ]);
     }
 }
