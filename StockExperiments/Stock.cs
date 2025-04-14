@@ -29,6 +29,10 @@ public class Stock
         {
             return false;
         }
+        if (itemsToChange.Any(x => x.Item!.Quantity.Value < x.QuantityToWithdraw.Quantity.Value))
+        {
+            return false;
+        }
         return true;
     }
 

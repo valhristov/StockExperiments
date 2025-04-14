@@ -1,4 +1,5 @@
 ﻿
+
 namespace StockExperiments;
 
 public sealed class StockItem
@@ -15,5 +16,10 @@ public sealed class StockItem
     public void Add(Quantity quantity)
     {
         Quantity = new Quantity(Quantity.Value + quantity.Value);
+    }
+
+    public void Subtract(Quantity quantity)
+    {
+        Quantity = new Quantity(Quantity.Value - quantity.Value);
     }
 }
