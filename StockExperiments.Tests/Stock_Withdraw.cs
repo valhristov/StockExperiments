@@ -13,7 +13,7 @@ public class Stock_Withdraw
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
 
         _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
-        _stock.Handle(new ArrivalEvent(_taxStampTypeId, new Quantity(OriginalQuantity)));
+        _stock.Handle(new ArrivalEvent([new (_taxStampTypeId, new Quantity(OriginalQuantity))]));
     }
 
     [Fact]

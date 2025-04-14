@@ -1,6 +1,4 @@
-﻿
-namespace StockExperiments;
-
+﻿namespace StockExperiments;
 public class Stock
 {
     private readonly List<StockItem> _quantities = new();
@@ -18,7 +16,7 @@ public class Stock
     public IReadOnlyCollection<StockTransaction> Transactions => _transactions;
     public IReadOnlyCollection<StockReservation> Reservations => _reservations;
 
-    public bool Withdraw(WithdrawalRequestId withdrawalRequestId, ICollection<TaxStampQuantity> quantities)
+    public bool Withdraw(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities)
     {
         if (quantities.Any(x => x.Quantity.Value <= 0))
         {
@@ -41,20 +39,23 @@ public class Stock
         {
             item.Item!.Subtract(item.QuantityToWithdraw.Quantity);
         }
-        _transactions.Add(StockTransaction.CreateWithdrawal(withdrawalRequestId, itemsToChange.Select(x => x.QuantityToWithdraw)));
+        _transactions.Add(StockTransaction.CreateWithdrawal(withdrawalRequestId, new (itemsToChange.Select(x => x.QuantityToWithdraw))));
         return true;
     }
 
     public void Handle(ArrivalEvent arrival)
     {
-        var item = _quantities.FirstOrDefault(x => x.TaxStampTypeId == arrival.TaxStampTypeId);
-        if (item is null)
+        foreach (var quantity in arrival.Quantities)
         {
-            item = new StockItem(arrival.TaxStampTypeId);
-            _quantities.Add(item);
+            var existing = _quantities.FirstOrDefault(x => x.TaxStampTypeId == quantity.TaxStampTypeId);
+            if (existing is null)
+            {
+                existing = new StockItem(quantity.TaxStampTypeId);
+                _quantities.Add(existing);
+            }
+            existing.Add(quantity.Quantity); 
         }
-        item.Add(arrival.Quantity);
-        _transactions.Add(StockTransaction.CreateArrival([new(arrival.TaxStampTypeId, arrival.Quantity)]));
+        _transactions.Add(StockTransaction.CreateArrival(arrival.Quantities));
     }
 
     public void Handle(DispatchEvent arrival)
