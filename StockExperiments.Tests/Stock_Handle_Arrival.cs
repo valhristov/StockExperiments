@@ -1,0 +1,122 @@
+﻿using FluentAssertions;
+
+namespace StockExperiments.Tests;
+
+public class Stock_Handle_Arrival
+{
+    private readonly Stock _stock;
+    private readonly TaxStampTypeId _taxStampTypeId;
+
+    public Stock_Handle_Arrival()
+    {
+        _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
+
+        _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
+    }
+
+    [Fact]
+    public void Arrival_Not_Existing_Type()
+    {
+        // Act
+        _stock.Handle(new ArrivalEvent(_taxStampTypeId, new Quantity(100)));
+
+        // Assert
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Quantities = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
+            },
+            Reservations = Array.Empty<object>(),
+            Transactions = new object[]
+            {
+                new
+                {
+                    Quantities = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
+                    },
+                },
+            },
+        });
+    }
+
+    [Fact]
+    public void Arrival_Existing_Type()
+    {
+        // Arrange
+        _stock.Handle(new ArrivalEvent(_taxStampTypeId, new Quantity(100)));
+
+        // Act
+        _stock.Handle(new ArrivalEvent(_taxStampTypeId, new Quantity(100)));
+
+        // Assert
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Quantities = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(200), },
+            },
+            Reservations = Array.Empty<object>(),
+            Transactions = new object[]
+            {
+                new
+                {
+                    Quantities = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                    },
+                },
+                new
+                {
+                    Quantities = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                    },
+                }
+            },
+        });
+    }
+
+    [Fact]
+    public void Arrival_Existing_Other_Type()
+    {
+        // Arrange
+        var otherTaxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
+        _stock.Handle(new ArrivalEvent(_taxStampTypeId, new Quantity(100)));
+
+        // Act
+        _stock.Handle(new ArrivalEvent(otherTaxStampTypeId, new Quantity(100)));
+
+        // Assert
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Quantities = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
+                new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), },
+            },
+            Reservations = Array.Empty<object>(),
+            Transactions = new object[]
+            {
+                new
+                {
+                    Quantities = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                    },
+                },
+                new
+                {
+                    Quantities = new object[]
+                    {
+                        new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), }
+                    },
+                }
+            },
+        });
+    }
+}

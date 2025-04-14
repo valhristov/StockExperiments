@@ -5,6 +5,7 @@ public class Stock
 {
     private readonly List<StockItem> _quantities = new();
     private readonly List<StockTransaction> _transactions = new();
+    private readonly List<StockReservation> _reservations = new();
 
     private Stock(ScanningLocationId scanningLocationId)
     {
@@ -15,9 +16,19 @@ public class Stock
 
     public IReadOnlyCollection<StockItem> Quantities => _quantities;
     public IReadOnlyCollection<StockTransaction> Transactions => _transactions;
+    public IReadOnlyCollection<StockReservation> Reservations => _reservations;
 
-    public bool Reserve(ICollection<TaxStampQuantity> quantities)
+    public bool Withdraw(WithdrawalRequestId withdrawalRequestId, ICollection<TaxStampQuantity> quantities)
     {
+        var itemsToChange = quantities
+            .GroupJoin(_quantities,
+                w => w.TaxStampTypeId,
+                q => q.TaxStampTypeId,
+                (w, q) => new { QuantityToWithdraw = w, Item = q.SingleOrDefault() });
+        if (itemsToChange.Any(x => x.Item is null))
+        {
+            return false;
+        }
         return true;
     }
 
@@ -30,7 +41,7 @@ public class Stock
             _quantities.Add(item);
         }
         item.Add(arrival.Quantity);
-        _transactions.Add(new StockTransaction([new (arrival.TaxStampTypeId, arrival.Quantity)]));
+        _transactions.Add(StockTransaction.CreateArrival([new (arrival.TaxStampTypeId, arrival.Quantity)]));
     }
 
     public void Handle(DispatchEvent arrival)
