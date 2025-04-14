@@ -20,6 +20,10 @@ public class Stock
 
     public bool Withdraw(WithdrawalRequestId withdrawalRequestId, ICollection<TaxStampQuantity> quantities)
     {
+        if (quantities.Any(x => x.Quantity.Value <= 0))
+        {
+            return false;
+        }
         var itemsToChange = quantities
             .GroupJoin(_quantities,
                 w => w.TaxStampTypeId,

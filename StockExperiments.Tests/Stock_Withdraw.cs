@@ -46,6 +46,24 @@ public class Stock_Withdraw
         Stock_Has_NotChanges();
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(int.MinValue)]
+    public void Withdraw_Zero(int toWithdraw)
+    {
+        // Act
+        var result = _stock.Withdraw(new WithdrawalRequestId(Guid.NewGuid()),
+        [
+            new (_taxStampTypeId, new Quantity(toWithdraw))
+        ]);
+
+        // Assert
+        result.Should().BeFalse();
+
+        Stock_Has_NotChanges();
+    }
+
     private void Stock_Has_NotChanges()
     {
         _stock.Should().BeEquivalentTo(
