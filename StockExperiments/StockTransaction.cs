@@ -19,5 +19,5 @@ public class StockTransaction
         new(null, quantities);
 
     public static StockTransaction CreateWithdrawal(WithdrawalRequestId withdrawalRequestId, IEnumerable<TaxStampQuantity> quantities) =>
-        new(withdrawalRequestId, quantities);
+        new(withdrawalRequestId, quantities.Select(x => new TaxStampQuantity(x.TaxStampTypeId, new(-x.Quantity))));
 }

@@ -50,7 +50,7 @@ public class Stock_Withdraw
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(int.MinValue)]
-    public void Withdraw_Zero(int toWithdraw)
+    public void Withdraw_Zero_Or_Negative(int toWithdraw)
     {
         // Act
         var result = _stock.Withdraw(new WithdrawalRequestId(Guid.NewGuid()),
@@ -62,6 +62,50 @@ public class Stock_Withdraw
         result.Should().BeFalse();
 
         Stock_Has_NotChanges();
+    }
+
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(OriginalQuantity - 1)]
+    [InlineData(OriginalQuantity)]
+    public void Withdraw_Success(int toWithdraw)
+    {
+        // Act
+        var result = _stock.Withdraw(new WithdrawalRequestId(Guid.NewGuid()),
+        [
+            new (_taxStampTypeId, new Quantity(toWithdraw))
+        ]);
+
+        // Assert
+        result.Should().BeTrue();
+
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Quantities = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity-toWithdraw), },
+            },
+            Reservations = Array.Empty<object>(),
+            Transactions = new object[]
+            {
+                new
+                {
+                    Quantities = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
+                    },
+                },
+                new
+                {
+                    Quantities = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(-toWithdraw), },
+                    },
+                },
+            },
+        });
     }
 
     private void Stock_Has_NotChanges()

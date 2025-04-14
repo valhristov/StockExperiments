@@ -37,6 +37,11 @@ public class Stock
         {
             return false;
         }
+        foreach (var item in itemsToChange)
+        {
+            item.Item!.Subtract(item.QuantityToWithdraw.Quantity);
+        }
+        _transactions.Add(StockTransaction.CreateWithdrawal(withdrawalRequestId, itemsToChange.Select(x => x.QuantityToWithdraw)));
         return true;
     }
 
@@ -49,7 +54,7 @@ public class Stock
             _quantities.Add(item);
         }
         item.Add(arrival.Quantity);
-        _transactions.Add(StockTransaction.CreateArrival([new (arrival.TaxStampTypeId, arrival.Quantity)]));
+        _transactions.Add(StockTransaction.CreateArrival([new(arrival.TaxStampTypeId, arrival.Quantity)]));
     }
 
     public void Handle(DispatchEvent arrival)
