@@ -56,10 +56,7 @@ public class Stock
     {
         var transaction = StockTransaction.CreateArrival(arrival.ArrivalEventId, arrival.Quantities);
 
-        // add stock items for missing types
-        _items.AddRange(transaction.Items
-            .Where(ti => !_items.Any(si => ti.TaxStampTypeId == si.TaxStampTypeId))
-            .Select(ti => new StockItem(ti.TaxStampTypeId)));
+        _items.AddRange(GetNotExistingTaxStampTypeIds(arrival.Quantities).Select(x => new StockItem(x)));
 
         if (!Apply(transaction))
         {
@@ -69,6 +66,11 @@ public class Stock
         _transactions.Add(transaction);
         return true;
     }
+
+    private IEnumerable<TaxStampTypeId> GetNotExistingTaxStampTypeIds(IReadOnlyCollection<TaxStampQuantity> quantities) =>
+        quantities
+            .Where(x => !_items.Any(si => x.TaxStampTypeId == si.TaxStampTypeId))
+            .Select(x => x.TaxStampTypeId);
 
     private bool Apply(StockTransaction transaction)
     {
