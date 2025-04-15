@@ -2,12 +2,12 @@
 
 namespace StockExperiments.Tests;
 
-public class Stock_Handle_Arrival
+public class Stock_Handle_ArrivalEvent
 {
     private readonly Stock _stock;
     private readonly TaxStampTypeId _taxStampTypeId;
 
-    public Stock_Handle_Arrival()
+    public Stock_Handle_ArrivalEvent()
     {
         _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
 

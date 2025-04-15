@@ -76,7 +76,12 @@ public class Stock_BeginDispatch
             {
                 new
                 {
-                    Items = new object[]
+                    Status = StockReservationStatus.Created,
+                    OriginalItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(toWithdraw), },
+                    },
+                    RemainingItems = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(toWithdraw), },
                     },

@@ -1,4 +1,5 @@
-﻿namespace StockExperiments;
+﻿
+namespace StockExperiments;
 public class Stock
 {
     private readonly List<StockItem> _available = new();
@@ -93,8 +94,38 @@ public class Stock
         return true;
     }
 
-    public void Handle(DispatchEvent arrival)
+    public bool Handle(DispatchEvent dispatch)
     {
+        var reservation = _reservations.FirstOrDefault(x => x.WithdrawalRequestId == dispatch.WithdrawalRequestId);
+        if (reservation is null)
+        {
+            return false;
+        }
+
+        var transaction = StockTransaction.CreateDispatch(dispatch.WithdrawalRequestId, dispatch.Quantities);
+
+        if (!Apply(transaction))
+        {
+            return false;
+        }
+
+        if (!reservation.Release(dispatch.Quantities))
+        {
+            return false;
+        }
+
+        var itemsToRelease = dispatch.Quantities.GroupJoin(_reserved,
+            q => q.TaxStampTypeId,
+            r => r.TaxStampTypeId,
+            (q, r) => (q.Quantity, ExistingItem: r.SingleOrDefault()));
+
+        foreach (var item in itemsToRelease.Where(x => x.ExistingItem != null))
+        {
+            item.ExistingItem!.Release(item.Quantity);
+        }
+
+        _transactions.Add(transaction);
+        return true;
     }
 
     public static Stock Create(ScanningLocationId scanningLocationId)
