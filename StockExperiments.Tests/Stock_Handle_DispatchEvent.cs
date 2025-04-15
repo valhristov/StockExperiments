@@ -111,7 +111,7 @@ public class Stock_Handle_DispatchEvent
             {
                 new
                 {
-                    Status = StockReservationStatus.Created,
+                    Status = StockReservationStatus.Active,
                     OriginalItems = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
@@ -224,7 +224,7 @@ public class Stock_Handle_DispatchEvent
             {
                 new
                 {
-                    Status = StockReservationStatus.Created,
+                    Status = StockReservationStatus.Active,
                     OriginalItems = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },

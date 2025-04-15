@@ -5,6 +5,7 @@ namespace StockExperiments.Tests;
 public class Stock_Reserve
 {
     private const int OriginalQuantity = 100;
+    private const int ReservedQuantity = 50;
     private readonly Stock _stock;
     private readonly ArrivalEventId _arrivalEventId;
     private readonly TaxStampTypeId _taxStampTypeId;
@@ -77,7 +78,7 @@ public class Stock_Reserve
             {
                 new
                 {
-                    Status = StockReservationStatus.Created,
+                    Status = StockReservationStatus.Active,
                     OriginalItems = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
@@ -85,6 +86,60 @@ public class Stock_Reserve
                     RemainingItems = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
+                    },
+                },
+            },
+        });
+        Transactions_And_Items_Not_Changed();
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(OriginalQuantity - ReservedQuantity)]
+    public void Success_Some_Reserved(int toWithdraw)
+    {
+        // Arrange
+        _stock.Reserve(new WithdrawalRequestId(Guid.NewGuid()),
+        [
+            new (_taxStampTypeId, new(ReservedQuantity))
+        ]);
+
+        // Act
+        var result = _stock.Reserve(new WithdrawalRequestId(Guid.NewGuid()),
+        [
+            new (_taxStampTypeId, new(toWithdraw))
+        ]);
+
+        // Assert
+        result.Should().BeTrue();
+
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Reservations = new object[]
+            {
+                new
+                {
+                    Status = StockReservationStatus.Active,
+                    OriginalItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                    RemainingItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                },
+                new
+                {
+                    Status = StockReservationStatus.Active,
+                    OriginalItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(toWithdraw), },
+                    },
+                    RemainingItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(toWithdraw), },
                     },
                 },
             },
@@ -114,7 +169,7 @@ public class Stock_Reserve
             {
                 new
                 {
-                    Status = StockReservationStatus.Created,
+                    Status = StockReservationStatus.Active,
                     OriginalItems = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(toWithdraw), },

@@ -2,7 +2,7 @@
 
 public enum StockReservationStatus
 {
-    Created,
+    Active,
     Completed,
     Canceled,
 }

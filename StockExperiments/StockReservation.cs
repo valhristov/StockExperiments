@@ -8,7 +8,7 @@ public class StockReservation
 
     private StockReservation(WithdrawalRequestId withdrawalRequestId, IEnumerable<StockReservationItem> items)
     {
-        Status = StockReservationStatus.Created;
+        Status = StockReservationStatus.Active;
         _remainingItems = items.ToList();
         _originalItems = items.ToList();
         WithdrawalRequestId = withdrawalRequestId;
@@ -18,6 +18,8 @@ public class StockReservation
     public IReadOnlyCollection<StockReservationItem> RemainingItems => _remainingItems;
     public IReadOnlyCollection<StockReservationItem> OriginalItems => _originalItems;
     public WithdrawalRequestId? WithdrawalRequestId { get; private set; }
+
+    public bool IsActive => Status == StockReservationStatus.Active;
 
     public static StockReservation Create(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities) =>
         new(withdrawalRequestId, quantities.Select(StockReservationItem.Create));

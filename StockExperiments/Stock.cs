@@ -1,4 +1,5 @@
 ﻿
+
 namespace StockExperiments;
 public class Stock
 {
@@ -19,18 +20,7 @@ public class Stock
 
     public bool Reserve(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantitiesToReserve)
     {
-        var affectedItems = quantitiesToReserve
-            .GroupJoin(_items,
-                r => r.TaxStampTypeId,
-                a => a.TaxStampTypeId,
-                (r, a) => (r.TaxStampTypeId, r.Quantity, Item: a.SingleOrDefault()))
-            .GroupJoin(_reservations.SelectMany(x => x.RemainingItems),
-                x => x.TaxStampTypeId,
-                r => r.TaxStampTypeId,
-                (x, r) => (x.Item, QuantityToReserve: x.Quantity, ReservedQuantity: new Quantity(r.Select(x => x.Quantity.Value).Sum())));
-        
-        if (affectedItems.Any(x => x.Item is null
-            || !x.Item.CanApply(QuantityChange.NegativeChange(x.ReservedQuantity + x.QuantityToReserve))))
+        if (!CanReserve(quantitiesToReserve))
         {
             return false;
         }
@@ -38,6 +28,28 @@ public class Stock
         _reservations.Add(StockReservation.Create(withdrawalRequestId, quantitiesToReserve));
 
         return true;
+    }
+
+    private bool CanReserve(TaxStampQuantitySet quantities)
+    {
+        var affectedItems = quantities
+            .GroupJoin(_items,
+                r => r.TaxStampTypeId,
+                a => a.TaxStampTypeId,
+                (r, a) => (r.TaxStampTypeId, r.Quantity, Item: a.SingleOrDefault()))
+            .GroupJoin(_reservations.Where(x => x.IsActive).SelectMany(x => x.RemainingItems),
+                x => x.TaxStampTypeId,
+                r => r.TaxStampTypeId,
+                (x, reservationItems) =>
+                    (
+                        x.Item,
+                        QuantityToReserve: x.Quantity,
+                        ReservedQuantity: new Quantity(reservationItems.Select(x => x.Quantity.Value).Sum())
+                    ));
+
+        return affectedItems.All(x =>
+            x.Item is not null &&
+            x.Item.Quantity >= x.ReservedQuantity + x.QuantityToReserve);
     }
 
     public bool Handle(ArrivalEvent arrival)
