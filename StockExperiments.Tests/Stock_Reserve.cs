@@ -28,7 +28,7 @@ public class Stock_Reserve
         // Assert
         result.Should().BeFalse();
 
-        Stock_Has_NotChanges();
+        Stock_Not_Changed();
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class Stock_Reserve
         // Assert
         result.Should().BeFalse();
 
-        Stock_Has_NotChanges();
+        Stock_Not_Changed();
     }
 
     [Fact]
@@ -66,10 +66,6 @@ public class Stock_Reserve
         _stock.Should().BeEquivalentTo(
         new
         {
-            Items = new object[]
-            {
-                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
-            },
             Reservations = new object[]
             {
                 new
@@ -85,17 +81,8 @@ public class Stock_Reserve
                     },
                 },
             },
-            Transactions = new object[]
-            {
-                new
-                {
-                    Items = new object[]
-                    {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
-                    },
-                },
-            },
         });
+        Transactions_And_Items_Not_Changed();
     }
 
     [Theory]
@@ -116,10 +103,6 @@ public class Stock_Reserve
         _stock.Should().BeEquivalentTo(
         new
         {
-            Items = new object[]
-            {
-                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
-            },
             Reservations = new object[]
             {
                 new
@@ -135,20 +118,21 @@ public class Stock_Reserve
                     },
                 },
             },
-            Transactions = new object[]
-            {
-                new
-                {
-                    Items = new object[]
-                    {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
-                    },
-                },
-            },
         });
+        Transactions_And_Items_Not_Changed();
     }
 
-    private void Stock_Has_NotChanges()
+    private void Stock_Not_Changed()
+    {
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Reservations = Array.Empty<object>(),
+        });
+        Transactions_And_Items_Not_Changed();
+    }
+
+    private void Transactions_And_Items_Not_Changed()
     {
         _stock.Should().BeEquivalentTo(
         new
@@ -157,7 +141,6 @@ public class Stock_Reserve
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
             },
-            Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
                 new

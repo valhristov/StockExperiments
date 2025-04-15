@@ -36,44 +36,7 @@ public class Stock_Handle_DispatchEvent
         // Assert
         result.Should().BeFalse();
 
-        Stock_Has_NotChanges();
-    }
-
-    private void Stock_Has_NotChanges()
-    {
-        _stock.Should().BeEquivalentTo(
-        new
-        {
-            Items = new object[]
-            {
-                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
-            },
-            Reservations = new object[]
-            {
-                new
-                {
-                    Status = StockReservationStatus.Created,
-                    OriginalItems = new object[]
-                    {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
-                    },
-                    RemainingItems = new object[]
-                    {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
-                    },
-                },
-            },
-            Transactions = new object[]
-            {
-                new
-                {
-                    Items = new object[]
-                    {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
-                    },
-                },
-            },
-        });
+        Stock_Not_Changed();
     }
 
     [Fact]
@@ -88,7 +51,7 @@ public class Stock_Handle_DispatchEvent
         // Assert
         result.Should().BeFalse();
 
-        Stock_Has_NotChanges();
+        Stock_Not_Changed();
     }
 
     [Fact]
@@ -102,7 +65,7 @@ public class Stock_Handle_DispatchEvent
         // Assert
         result.Should().BeFalse();
 
-        Stock_Has_NotChanges();
+        Stock_Not_Changed();
     }
 
     [Theory]
@@ -214,6 +177,43 @@ public class Stock_Handle_DispatchEvent
                     Items = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-toDispatch), },
+                    },
+                },
+            },
+        });
+    }
+
+    private void Stock_Not_Changed()
+    {
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Items = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
+            },
+            Reservations = new object[]
+            {
+                new
+                {
+                    Status = StockReservationStatus.Created,
+                    OriginalItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                    RemainingItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                },
+            },
+            Transactions = new object[]
+            {
+                new
+                {
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
                     },
                 },
             },
