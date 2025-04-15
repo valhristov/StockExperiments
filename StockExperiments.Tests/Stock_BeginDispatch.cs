@@ -2,13 +2,13 @@
 
 namespace StockExperiments.Tests;
 
-public class Stock_Dispatch
+public class Stock_BeginDispatch
 {
     private const int OriginalQuantity = 100;
     private readonly Stock _stock;
     private readonly TaxStampTypeId _taxStampTypeId;
 
-    public Stock_Dispatch()
+    public Stock_BeginDispatch()
     {
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
 
@@ -17,10 +17,10 @@ public class Stock_Dispatch
     }
 
     [Fact]
-    public void Dispatch_Missing_TaxStampType()
+    public void Missing_TaxStampType()
     {
         // Act
-        var result = _stock.Dispatch(new WithdrawalRequestId(Guid.NewGuid()),
+        var result = _stock.BeginDispatch(new WithdrawalRequestId(Guid.NewGuid()),
         [
             new (new(Guid.NewGuid()), new(20))
         ]);
@@ -32,10 +32,10 @@ public class Stock_Dispatch
     }
 
     [Fact]
-    public void Dispatch_Too_Much()
+    public void Too_Much()
     {
         // Act
-        var result = _stock.Dispatch(new WithdrawalRequestId(Guid.NewGuid()),
+        var result = _stock.BeginDispatch(new WithdrawalRequestId(Guid.NewGuid()),
         [
             new (_taxStampTypeId, new (OriginalQuantity + 1))
         ]);
@@ -50,10 +50,10 @@ public class Stock_Dispatch
     [InlineData(1)]
     [InlineData(OriginalQuantity - 1)]
     [InlineData(OriginalQuantity)]
-    public void Dispatch_Success(int toWithdraw)
+    public void Success(int toWithdraw)
     {
         // Act
-        var result = _stock.Dispatch(new WithdrawalRequestId(Guid.NewGuid()),
+        var result = _stock.BeginDispatch(new WithdrawalRequestId(Guid.NewGuid()),
         [
             new (_taxStampTypeId, new(toWithdraw))
         ]);
@@ -64,11 +64,24 @@ public class Stock_Dispatch
         _stock.Should().BeEquivalentTo(
         new
         {
-            Items = new object[]
+            Available = new object[]
             {
-                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity-toWithdraw), },
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
             },
-            Reservations = Array.Empty<object>(),
+            Reserved = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(toWithdraw), },
+            },
+            Reservations = new object[]
+            {
+                new
+                {
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(toWithdraw), },
+                    },
+                },
+            },
             Transactions = new object[]
             {
                 new
@@ -76,13 +89,6 @@ public class Stock_Dispatch
                     Items = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
-                    },
-                },
-                new
-                {
-                    Items = new object[]
-                    {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-toWithdraw), },
                     },
                 },
             },
@@ -94,10 +100,11 @@ public class Stock_Dispatch
         _stock.Should().BeEquivalentTo(
         new
         {
-            Items = new object[]
+            Available = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
             },
+            Reserved = Array.Empty<object>(),
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {

@@ -24,10 +24,11 @@ public class Stock_Handle_Arrival
         _stock.Should().BeEquivalentTo(
         new
         {
-            Items = new object[]
+            Available = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
             },
+            Reserved = Array.Empty<object>(),
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
@@ -55,10 +56,11 @@ public class Stock_Handle_Arrival
         _stock.Should().BeEquivalentTo(
         new
         {
-            Items = new object[]
+            Available = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(200), },
             },
+            Reserved = Array.Empty<object>(),
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
@@ -94,11 +96,12 @@ public class Stock_Handle_Arrival
         _stock.Should().BeEquivalentTo(
         new
         {
-            Items = new object[]
+            Available = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
                 new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), },
             },
+            Reserved = Array.Empty<object>(),
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {

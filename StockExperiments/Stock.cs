@@ -1,9 +1,8 @@
-﻿
-
-namespace StockExperiments;
+﻿namespace StockExperiments;
 public class Stock
 {
-    private readonly List<StockItem> _items = new();
+    private readonly List<StockItem> _available = new();
+    private readonly List<ReservationItem> _reserved = new();
     private readonly List<StockTransaction> _transactions = new();
     private readonly List<StockReservation> _reservations = new();
 
@@ -14,20 +13,41 @@ public class Stock
 
     public ScanningLocationId ScanningLocationId { get; private set; }
 
-    public IReadOnlyCollection<StockItem> Items => _items;
+    public IReadOnlyCollection<StockItem> Available => _available;
+    public IReadOnlyCollection<ReservationItem> Reserved => _reserved;
     public IReadOnlyCollection<StockTransaction> Transactions => _transactions;
     public IReadOnlyCollection<StockReservation> Reservations => _reservations;
 
-    public bool Dispatch(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities)
+    public bool BeginDispatch(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities)
     {
-        var transaction = StockTransaction.CreateDispatch(withdrawalRequestId, quantities);
-
-        if (!Apply(transaction))
+        var toReserve = quantities.GroupJoin(
+            _available,
+            r => r.TaxStampTypeId,
+            a => a.TaxStampTypeId,
+            (r, a) => (r.Quantity, AvailableItem: a.SingleOrDefault()));
+        
+        if (toReserve.Any(x => x.AvailableItem is null || !x.AvailableItem.CanSubtract(x.Quantity)))
         {
             return false;
         }
 
-        _transactions.Add(transaction);
+        _reserved.AddRange(quantities
+            .Where(ti => !_reserved.Any(si => ti.TaxStampTypeId == si.TaxStampTypeId))
+            .Select(ti => new ReservationItem(ti.TaxStampTypeId)));
+
+        var reserved = quantities.GroupJoin(
+            _reserved,
+            r => r.TaxStampTypeId,
+            x => x.TaxStampTypeId,
+            (r, x) => (r.Quantity, ReservedItem: x.Single()));
+
+        foreach (var item in reserved)
+        {
+            item.ReservedItem.Add(item.Quantity);
+        }
+
+        _reservations.Add(StockReservation.Create(withdrawalRequestId, quantities));
+
         return true;
     }
 
@@ -48,13 +68,13 @@ public class Stock
     {
         if (transaction.Type == StockTransactionType.Arrival)
         {
-            _items.AddRange(transaction.Items
-                .Where(ti => !_items.Any(si => ti.TaxStampTypeId == si.TaxStampTypeId))
+            _available.AddRange(transaction.Items
+                .Where(ti => !_available.Any(si => ti.TaxStampTypeId == si.TaxStampTypeId))
                 .Select(ti => new StockItem(ti.TaxStampTypeId)));
         }
 
         var toChange = transaction.Items
-            .GroupJoin(Items,
+            .GroupJoin(Available,
                 ti => ti.TaxStampTypeId,
                 si => si.TaxStampTypeId,
                 (ti, si) => (ti.QuantityChange, StockItem: si.SingleOrDefault()))

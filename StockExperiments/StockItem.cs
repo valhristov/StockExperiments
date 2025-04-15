@@ -19,4 +19,7 @@ public sealed class StockItem
 
     public bool CanApply(QuantityChange quantityChange) =>
         Quantity.Value + quantityChange.Value >= 0;
+
+    public bool CanSubtract(Quantity quantity) =>
+        Quantity.Value - quantity.Value >= 0;
 }
