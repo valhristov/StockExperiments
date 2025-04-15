@@ -18,7 +18,11 @@ public class Stock_Handle_ArrivalEvent
     public void Arrival_Not_Existing_Type()
     {
         // Act
-        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new Quantity(100))]));
+        _stock.Handle(new ArrivalEvent(
+            new ArrivalEventId(Guid.NewGuid()),
+            [
+                new(_taxStampTypeId, new Quantity(100)),
+            ]));
 
         // Assert
         _stock.Should().BeEquivalentTo(
@@ -46,10 +50,18 @@ public class Stock_Handle_ArrivalEvent
     public void Arrival_Existing_Type()
     {
         // Arrange
-        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new(100))]));
+        _stock.Handle(new ArrivalEvent(
+            new ArrivalEventId(Guid.NewGuid()),
+            [
+                new(_taxStampTypeId, new(100)),
+            ]));
 
         // Act
-        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new(100))]));
+        _stock.Handle(new ArrivalEvent(
+            new ArrivalEventId(Guid.NewGuid()),
+            [
+                new(_taxStampTypeId, new(100)),
+            ]));
 
         // Assert
         _stock.Should().BeEquivalentTo(
@@ -85,10 +97,18 @@ public class Stock_Handle_ArrivalEvent
     {
         // Arrange
         var otherTaxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
-        _stock.Handle(new ArrivalEvent([ new (_taxStampTypeId, new Quantity(100))]));
+        _stock.Handle(new ArrivalEvent(
+            new ArrivalEventId(Guid.NewGuid()),
+            [
+                new (_taxStampTypeId, new Quantity(100)),
+            ]));
 
         // Act
-        _stock.Handle(new ArrivalEvent([ new (otherTaxStampTypeId, new Quantity(50))]));
+        _stock.Handle(new ArrivalEvent(
+            new ArrivalEventId(Guid.NewGuid()),
+            [
+                new (otherTaxStampTypeId, new Quantity(50)),
+            ]));
 
         // Assert
         _stock.Should().BeEquivalentTo(

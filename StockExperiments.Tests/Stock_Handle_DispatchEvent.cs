@@ -9,29 +9,38 @@ public class Stock_Handle_DispatchEvent
     private readonly Stock _stock;
     private readonly TaxStampTypeId _taxStampTypeId;
     private readonly WithdrawalRequestId _withdrawalRequestId;
+    private readonly DispatchEventId _dispatchEventId;
 
     public Stock_Handle_DispatchEvent()
     {
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
         _withdrawalRequestId = new WithdrawalRequestId(Guid.NewGuid());
+        _dispatchEventId = new DispatchEventId(Guid.NewGuid());
 
         _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
-        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new Quantity(OriginalQuantity))]));
+        _stock.Handle(new ArrivalEvent(new ArrivalEventId(Guid.NewGuid()),
+            [
+                new(_taxStampTypeId, new(OriginalQuantity)),
+            ]));
 
         _stock.Reserve(_withdrawalRequestId,
-        [
-            new(_taxStampTypeId, new Quantity(ReservedQuantity)),
-        ]);
+            [
+                new(_taxStampTypeId, new(ReservedQuantity)),
+            ]);
+
+        Stock_Not_Changed(); // sanity check
     }
 
     [Fact]
     public void Missing_TaxStampType()
     {
         // Act
-        var result = _stock.Handle(new DispatchEvent(_withdrawalRequestId,
-        [
-            new (new(Guid.NewGuid()), new(20))
-        ]));
+        var result = _stock.Handle(new DispatchEvent(
+            _dispatchEventId,
+            _withdrawalRequestId,
+            [
+                new (new TaxStampTypeId(Guid.NewGuid()), new(20))
+            ]));
 
         // Assert
         result.Should().BeFalse();
@@ -43,10 +52,12 @@ public class Stock_Handle_DispatchEvent
     public void Too_Much()
     {
         // Act
-        var result = _stock.Handle(new DispatchEvent(_withdrawalRequestId,
-        [
-            new (_taxStampTypeId, new(OriginalQuantity + 1))
-        ]));
+        var result = _stock.Handle(new DispatchEvent(
+            new DispatchEventId(Guid.NewGuid()),
+            _withdrawalRequestId,
+            [
+                new (_taxStampTypeId, new(OriginalQuantity + 1))
+            ]));
 
         // Assert
         result.Should().BeFalse();
@@ -57,10 +68,12 @@ public class Stock_Handle_DispatchEvent
     [Fact]
     public void No_Reservation()
     {
-        var result = _stock.Handle(new DispatchEvent(new(Guid.NewGuid()),
-        [
-            new (_taxStampTypeId, new(OriginalQuantity + 1))
-        ]));
+        var result = _stock.Handle(new DispatchEvent(
+            _dispatchEventId,
+            new WithdrawalRequestId(Guid.NewGuid()),
+            [
+                new (_taxStampTypeId, new(1))
+            ]));
 
         // Assert
         result.Should().BeFalse();
@@ -76,10 +89,12 @@ public class Stock_Handle_DispatchEvent
         // Arrange
 
         // Act
-        _stock.Handle(new DispatchEvent(_withdrawalRequestId,
-        [
-            new(_taxStampTypeId, new Quantity(toDispatch)),
-        ]));
+        _stock.Handle(new DispatchEvent(
+            _dispatchEventId,
+            _withdrawalRequestId,
+            [
+                new(_taxStampTypeId, new(toDispatch)),
+            ]));
 
         // Assert
         _stock.Should().BeEquivalentTo(
@@ -135,10 +150,12 @@ public class Stock_Handle_DispatchEvent
         // Arrange
 
         // Act
-        _stock.Handle(new DispatchEvent(_withdrawalRequestId,
-        [
-            new(_taxStampTypeId, new Quantity(toDispatch)),
-        ]));
+        _stock.Handle(new DispatchEvent(
+            _dispatchEventId,
+            _withdrawalRequestId,
+            [
+                new(_taxStampTypeId, new Quantity(toDispatch)),
+            ]));
 
         // Assert
         _stock.Should().BeEquivalentTo(

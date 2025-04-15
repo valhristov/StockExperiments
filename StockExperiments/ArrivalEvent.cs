@@ -1,3 +1,5 @@
 ﻿namespace StockExperiments;
 
-public record ArrivalEvent(TaxStampQuantitySet Quantities);
+public record ArrivalEvent(
+    ArrivalEventId ArrivalEventId,
+    TaxStampQuantitySet Quantities);

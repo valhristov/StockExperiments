@@ -13,7 +13,11 @@ public class Stock_Reserve
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
 
         _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
-        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new(OriginalQuantity))]));
+        _stock.Handle(new ArrivalEvent(
+            new ArrivalEventId(Guid.NewGuid()),
+            [
+                new(_taxStampTypeId, new(OriginalQuantity)),
+            ]));
     }
 
     [Fact]
@@ -49,6 +53,7 @@ public class Stock_Reserve
     [Fact]
     public void Too_Much_Reserved()
     {
+        // Arrange
         _stock.Reserve(new WithdrawalRequestId(Guid.NewGuid()),
         [
             new (_taxStampTypeId, new (OriginalQuantity))

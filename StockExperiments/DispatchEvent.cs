@@ -1,3 +1,6 @@
 ﻿namespace StockExperiments;
 
-public record DispatchEvent(WithdrawalRequestId WithdrawalRequestId, TaxStampQuantitySet Quantities);
+public record DispatchEvent(
+    DispatchEventId DispatchEventId,
+    WithdrawalRequestId WithdrawalRequestId,
+    TaxStampQuantitySet Quantities);
