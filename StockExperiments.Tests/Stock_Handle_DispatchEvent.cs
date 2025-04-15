@@ -18,7 +18,7 @@ public class Stock_Handle_DispatchEvent
         _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
         _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new Quantity(OriginalQuantity))]));
 
-        _stock.BeginDispatch(_withdrawalRequestId,
+        _stock.Reserve(_withdrawalRequestId,
         [
             new(_taxStampTypeId, new Quantity(ReservedQuantity)),
         ]);
@@ -44,13 +44,9 @@ public class Stock_Handle_DispatchEvent
         _stock.Should().BeEquivalentTo(
         new
         {
-            Available = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity - toDispatch), },
-            },
-            Reserved = new object[]
-            {
-                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity - toDispatch), },
             },
             Reservations = new object[]
             {
@@ -107,13 +103,9 @@ public class Stock_Handle_DispatchEvent
         _stock.Should().BeEquivalentTo(
         new
         {
-            Available = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity - toDispatch), },
-            },
-            Reserved = new object[]
-            {
-                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(0), },
             },
             Reservations = new object[]
             {

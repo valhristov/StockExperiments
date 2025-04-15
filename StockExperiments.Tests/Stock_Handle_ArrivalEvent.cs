@@ -24,11 +24,10 @@ public class Stock_Handle_ArrivalEvent
         _stock.Should().BeEquivalentTo(
         new
         {
-            Available = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
             },
-            Reserved = Array.Empty<object>(),
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
@@ -56,11 +55,10 @@ public class Stock_Handle_ArrivalEvent
         _stock.Should().BeEquivalentTo(
         new
         {
-            Available = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(200), },
             },
-            Reserved = Array.Empty<object>(),
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
@@ -90,18 +88,17 @@ public class Stock_Handle_ArrivalEvent
         _stock.Handle(new ArrivalEvent([ new (_taxStampTypeId, new Quantity(100))]));
 
         // Act
-        _stock.Handle(new ArrivalEvent([ new (otherTaxStampTypeId, new Quantity(100))]));
+        _stock.Handle(new ArrivalEvent([ new (otherTaxStampTypeId, new Quantity(50))]));
 
         // Assert
         _stock.Should().BeEquivalentTo(
         new
         {
-            Available = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
-                new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), },
+                new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(50), },
             },
-            Reserved = Array.Empty<object>(),
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
@@ -116,7 +113,7 @@ public class Stock_Handle_ArrivalEvent
                 {
                     Items = new object[]
                     {
-                        new { TaxStampTypeId = otherTaxStampTypeId, QuantityChange = new QuantityChange(100), }
+                        new { TaxStampTypeId = otherTaxStampTypeId, QuantityChange = new QuantityChange(50), }
                     },
                 }
             },
