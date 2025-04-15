@@ -24,8 +24,86 @@ public class Stock_Handle_DispatchEvent
         ]);
     }
 
-    // 1) dispatch event is greater than reservation
-    // 2) dispatch event is smaller than reservation
+    [Fact]
+    public void Missing_TaxStampType()
+    {
+        // Act
+        var result = _stock.Handle(new DispatchEvent(_withdrawalRequestId,
+        [
+            new (new(Guid.NewGuid()), new(20))
+        ]));
+
+        // Assert
+        result.Should().BeFalse();
+
+        Stock_Has_NotChanges();
+    }
+
+    private void Stock_Has_NotChanges()
+    {
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Items = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
+            },
+            Reservations = new object[]
+            {
+                new
+                {
+                    Status = StockReservationStatus.Created,
+                    OriginalItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                    RemainingItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                },
+            },
+            Transactions = new object[]
+            {
+                new
+                {
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
+                    },
+                },
+            },
+        });
+    }
+
+    [Fact]
+    public void Too_Much()
+    {
+        // Act
+        var result = _stock.Handle(new DispatchEvent(_withdrawalRequestId,
+        [
+            new (_taxStampTypeId, new(OriginalQuantity + 1))
+        ]));
+
+        // Assert
+        result.Should().BeFalse();
+
+        Stock_Has_NotChanges();
+    }
+
+    [Fact]
+    public void No_Reservation()
+    {
+        var result = _stock.Handle(new DispatchEvent(new(Guid.NewGuid()),
+        [
+            new (_taxStampTypeId, new(OriginalQuantity + 1))
+        ]));
+
+        // Assert
+        result.Should().BeFalse();
+
+        Stock_Has_NotChanges();
+    }
 
     [Theory]
     [InlineData(1)]

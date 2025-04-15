@@ -44,6 +44,11 @@ public class Stock
     {
         var transaction = StockTransaction.CreateArrival(arrival.Quantities);
 
+        // add stock items for missing types
+        _items.AddRange(transaction.Items
+            .Where(ti => !_items.Any(si => ti.TaxStampTypeId == si.TaxStampTypeId))
+            .Select(ti => new StockItem(ti.TaxStampTypeId)));
+
         if (!Apply(transaction))
         {
             return false;
@@ -55,23 +60,6 @@ public class Stock
 
     private bool Apply(StockTransaction transaction)
     {
-        if (transaction.Type == StockTransactionType.Arrival)
-        {
-            _items.AddRange(transaction.Items
-                .Where(ti => !_items.Any(si => ti.TaxStampTypeId == si.TaxStampTypeId))
-                .Select(ti => new StockItem(ti.TaxStampTypeId)));
-        }
-
-        var affectedItems = transaction.Items
-            .GroupJoin(_items,
-                r => r.TaxStampTypeId,
-                a => a.TaxStampTypeId,
-                (r, a) => (r.TaxStampTypeId, r.QuantityChange, Item: a.SingleOrDefault()))
-            .GroupJoin(_reservations.SelectMany(x => x.RemainingItems),
-                x => x.TaxStampTypeId,
-                r => r.TaxStampTypeId,
-                (x, r) => (x.Item, x.QuantityChange, ReservedQuantity: new Quantity(r.Select(x => x.Quantity.Value).Sum())));
-
         var toChange = transaction.Items
             .GroupJoin(Items,
                 ti => ti.TaxStampTypeId,
@@ -100,11 +88,6 @@ public class Stock
             return false;
         }
 
-        if (!reservation.Release(dispatch.Quantities))
-        {
-            return false;
-        }
-
         var transaction = StockTransaction.CreateDispatch(dispatch.WithdrawalRequestId, dispatch.Quantities);
 
         if (!Apply(transaction))
@@ -112,6 +95,7 @@ public class Stock
             return false;
         }
 
+        reservation.Release(dispatch.Quantities);
         _transactions.Add(transaction);
         return true;
     }

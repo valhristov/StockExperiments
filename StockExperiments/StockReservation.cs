@@ -22,7 +22,7 @@ public class StockReservation
     public static StockReservation Create(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities) =>
         new(withdrawalRequestId, quantities.Select(StockReservationItem.Create));
 
-    public bool Release(TaxStampQuantitySet quantities)
+    public void Release(TaxStampQuantitySet quantities)
     {
         var itemsToRelease = quantities.GroupJoin(_remainingItems,
             q => q.TaxStampTypeId,
@@ -38,7 +38,5 @@ public class StockReservation
         {
             Status = StockReservationStatus.Completed;
         }
-
-        return true;
     }
 }
