@@ -42,7 +42,7 @@ public class Stock
 
     public bool Handle(ArrivalEvent arrival)
     {
-        var transaction = StockTransaction.CreateArrival(arrival.Quantities);
+        var transaction = StockTransaction.CreateArrival(arrival.ArrivalEventId, arrival.Quantities);
 
         // add stock items for missing types
         _items.AddRange(transaction.Items
@@ -88,7 +88,7 @@ public class Stock
             return false;
         }
 
-        var transaction = StockTransaction.CreateDispatch(dispatch.WithdrawalRequestId, dispatch.Quantities);
+        var transaction = StockTransaction.CreateDispatch(dispatch.DispatchEventId, dispatch.Quantities);
 
         if (!Apply(transaction))
         {

@@ -6,15 +6,17 @@ public class Stock_Reserve
 {
     private const int OriginalQuantity = 100;
     private readonly Stock _stock;
+    private readonly ArrivalEventId _arrivalEventId;
     private readonly TaxStampTypeId _taxStampTypeId;
 
     public Stock_Reserve()
     {
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
+        _arrivalEventId = new ArrivalEventId(Guid.NewGuid());
 
         _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
         _stock.Handle(new ArrivalEvent(
-            new ArrivalEventId(Guid.NewGuid()),
+            _arrivalEventId,
             [
                 new(_taxStampTypeId, new(OriginalQuantity)),
             ]));
@@ -150,6 +152,8 @@ public class Stock_Reserve
             {
                 new
                 {
+                    DispatchEventId = default(DispatchEventId?),
+                    ArrivalEventId = _arrivalEventId,
                     Items = new object[]
                     {
                         new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
