@@ -1,4 +1,6 @@
-﻿namespace StockExperiments;
+﻿
+
+namespace StockExperiments;
 public class Stock
 {
     private readonly List<StockItem> _items = new();
@@ -18,40 +20,57 @@ public class Stock
 
     public bool Dispatch(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities)
     {
-        var itemsToChange = quantities
-            .GroupJoin(_items,
-                w => w.TaxStampTypeId,
-                q => q.TaxStampTypeId,
-                (w, q) => new { ToDispatch = w, Item = q.SingleOrDefault() });
-        if (itemsToChange.Any(x => x.Item is null))
+        var transaction = StockTransaction.CreateDispatch(withdrawalRequestId, quantities);
+
+        if (!Apply(transaction))
         {
             return false;
         }
-        if (itemsToChange.Any(x => x.Item!.Quantity < x.ToDispatch.Quantity))
-        {
-            return false;
-        }
-        foreach (var item in itemsToChange)
-        {
-            item.Item!.Apply(QuantityChange.NegativeChange(item.ToDispatch.Quantity));
-        }
-        _transactions.Add(StockTransaction.CreateDispatch(withdrawalRequestId, new (itemsToChange.Select(x => x.ToDispatch))));
+
+        _transactions.Add(transaction);
         return true;
     }
 
-    public void Handle(ArrivalEvent arrival)
+    public bool Handle(ArrivalEvent arrival)
     {
-        foreach (var arrivedTaxStampType in arrival.Quantities)
+        var transaction = StockTransaction.CreateArrival(arrival.Quantities);
+
+        if (!Apply(transaction))
         {
-            var existing = _items.FirstOrDefault(x => x.TaxStampTypeId == arrivedTaxStampType.TaxStampTypeId);
-            if (existing is null)
-            {
-                existing = new StockItem(arrivedTaxStampType.TaxStampTypeId);
-                _items.Add(existing);
-            }
-            existing.Apply(QuantityChange.PositiveChange(arrivedTaxStampType.Quantity)); 
+            return false;
         }
-        _transactions.Add(StockTransaction.CreateArrival(arrival.Quantities));
+
+        _transactions.Add(transaction);
+        return true;
+    }
+
+    private bool Apply(StockTransaction transaction)
+    {
+        if (transaction.Type == StockTransactionType.Arrival)
+        {
+            _items.AddRange(transaction.Items
+                .Where(ti => !_items.Any(si => ti.TaxStampTypeId == si.TaxStampTypeId))
+                .Select(ti => new StockItem(ti.TaxStampTypeId)));
+        }
+
+        var toChange = transaction.Items
+            .GroupJoin(Items,
+                ti => ti.TaxStampTypeId,
+                si => si.TaxStampTypeId,
+                (ti, si) => (ti.QuantityChange, StockItem: si.SingleOrDefault()))
+            .ToList();
+
+        if (toChange.Any(x => x.StockItem is null || !x.StockItem.CanApply(x.QuantityChange)))
+        {
+            return false;
+        }
+
+        foreach (var item in toChange)
+        {
+            item.StockItem!.Apply(item.QuantityChange);
+        }
+
+        return true;
     }
 
     public void Handle(DispatchEvent arrival)

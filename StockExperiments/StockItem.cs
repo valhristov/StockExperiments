@@ -1,6 +1,4 @@
-﻿
-
-namespace StockExperiments;
+﻿namespace StockExperiments;
 
 public sealed class StockItem
 {
@@ -15,6 +13,10 @@ public sealed class StockItem
 
     public void Apply(QuantityChange quantityChange)
     {
+        if (!CanApply(quantityChange)) throw new InvalidOperationException();
         Quantity = new Quantity(Quantity.Value + quantityChange.Value);
     }
+
+    public bool CanApply(QuantityChange quantityChange) =>
+        Quantity.Value + quantityChange.Value >= 0;
 }

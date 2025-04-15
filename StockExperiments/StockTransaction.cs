@@ -4,9 +4,9 @@ public class StockTransaction
 {
     private readonly List<StockTransactionItem> _items;
 
-    private StockTransaction(StockTransactionType type, List<StockTransactionItem> items, WithdrawalRequestId? withdrawalRequestId)
+    private StockTransaction(StockTransactionType type, IEnumerable<StockTransactionItem> items, WithdrawalRequestId? withdrawalRequestId)
     {
-        _items = items;
+        _items = items.ToList();
         Type = type;
         WithdrawalRequestId = withdrawalRequestId;
     }
@@ -18,11 +18,11 @@ public class StockTransaction
 
     public static StockTransaction CreateArrival(TaxStampQuantitySet quantities) =>
         new(StockTransactionType.Arrival,
-            quantities.Select(x => new StockTransactionItem(x.TaxStampTypeId, QuantityChange.PositiveChange(x.Quantity))).ToList(),
+            quantities.Select(StockTransactionItem.CreateArrival),
             null);
 
     public static StockTransaction CreateDispatch(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities) =>
         new(StockTransactionType.Dispatch,
-            quantities.Select(x => new StockTransactionItem(x.TaxStampTypeId, QuantityChange.NegativeChange(x.Quantity))).ToList(),
+            quantities.Select(StockTransactionItem.CreateDispatch),
             withdrawalRequestId);
 }
