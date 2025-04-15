@@ -16,5 +16,5 @@ public class StockReservationItem
 
     public void Release(Quantity quantity) =>
         // be permissive
-        Quantity = new(Math.Max(0, quantity.Value - quantity));
+        Quantity = new(Math.Max(0, Quantity.Value - quantity));
 }

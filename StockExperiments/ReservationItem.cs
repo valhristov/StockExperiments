@@ -20,6 +20,6 @@ public sealed class ReservationItem
     {
         // TODO: should we allow releasing more than reserved?
         // ArgumentOutOfRangeException.ThrowIfGreaterThan(quantity.Value, Quantity, nameof(quantity));
-        Quantity = new(Math.Max(0, quantity.Value - quantity));
+        Quantity = new(Math.Max(0, Quantity.Value - quantity));
     }
 }
