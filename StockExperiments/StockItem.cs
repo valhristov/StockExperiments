@@ -13,13 +13,8 @@ public sealed class StockItem
     public TaxStampTypeId TaxStampTypeId { get; private set; }
     public Quantity Quantity { get; private set; }
 
-    public void Add(Quantity quantity)
+    public void Apply(QuantityChange quantityChange)
     {
-        Quantity = new Quantity(Quantity.Value + quantity.Value);
-    }
-
-    public void Subtract(Quantity quantity)
-    {
-        Quantity = new Quantity(Quantity.Value - quantity.Value);
+        Quantity = new Quantity(Quantity.Value + quantityChange.Value);
     }
 }

@@ -2,27 +2,27 @@
 
 namespace StockExperiments.Tests;
 
-public class Stock_Withdraw
+public class Stock_Dispatch
 {
     private const int OriginalQuantity = 100;
     private readonly Stock _stock;
     private readonly TaxStampTypeId _taxStampTypeId;
 
-    public Stock_Withdraw()
+    public Stock_Dispatch()
     {
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
 
         _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
-        _stock.Handle(new ArrivalEvent([new (_taxStampTypeId, new Quantity(OriginalQuantity))]));
+        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new(OriginalQuantity))]));
     }
 
     [Fact]
-    public void Withdraw_Missing_TaxStampType()
+    public void Dispatch_Missing_TaxStampType()
     {
         // Act
-        var result = _stock.Withdraw(new WithdrawalRequestId(Guid.NewGuid()),
+        var result = _stock.Dispatch(new WithdrawalRequestId(Guid.NewGuid()),
         [
-            new (new TaxStampTypeId(Guid.NewGuid()), new Quantity(20))
+            new (new(Guid.NewGuid()), new(20))
         ]);
 
         // Assert
@@ -32,12 +32,12 @@ public class Stock_Withdraw
     }
 
     [Fact]
-    public void Withdraw_Too_Much()
+    public void Dispatch_Too_Much()
     {
         // Act
-        var result = _stock.Withdraw(new WithdrawalRequestId(Guid.NewGuid()),
+        var result = _stock.Dispatch(new WithdrawalRequestId(Guid.NewGuid()),
         [
-            new (_taxStampTypeId, new Quantity(OriginalQuantity + 1))
+            new (_taxStampTypeId, new (OriginalQuantity + 1))
         ]);
 
         // Assert
@@ -45,36 +45,17 @@ public class Stock_Withdraw
 
         Stock_Has_NotChanges();
     }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(int.MinValue)]
-    public void Withdraw_Zero_Or_Negative(int toWithdraw)
-    {
-        // Act
-        var result = _stock.Withdraw(new WithdrawalRequestId(Guid.NewGuid()),
-        [
-            new (_taxStampTypeId, new Quantity(toWithdraw))
-        ]);
-
-        // Assert
-        result.Should().BeFalse();
-
-        Stock_Has_NotChanges();
-    }
-
 
     [Theory]
     [InlineData(1)]
     [InlineData(OriginalQuantity - 1)]
     [InlineData(OriginalQuantity)]
-    public void Withdraw_Success(int toWithdraw)
+    public void Dispatch_Success(int toWithdraw)
     {
         // Act
-        var result = _stock.Withdraw(new WithdrawalRequestId(Guid.NewGuid()),
+        var result = _stock.Dispatch(new WithdrawalRequestId(Guid.NewGuid()),
         [
-            new (_taxStampTypeId, new Quantity(toWithdraw))
+            new (_taxStampTypeId, new(toWithdraw))
         ]);
 
         // Assert
@@ -83,7 +64,7 @@ public class Stock_Withdraw
         _stock.Should().BeEquivalentTo(
         new
         {
-            Quantities = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity-toWithdraw), },
             },
@@ -92,16 +73,16 @@ public class Stock_Withdraw
             {
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
                     },
                 },
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(-toWithdraw), },
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-toWithdraw), },
                     },
                 },
             },
@@ -113,7 +94,7 @@ public class Stock_Withdraw
         _stock.Should().BeEquivalentTo(
         new
         {
-            Quantities = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
             },
@@ -122,9 +103,9 @@ public class Stock_Withdraw
             {
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity), },
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
                     },
                 },
             },

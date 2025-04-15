@@ -24,7 +24,7 @@ public class Stock_Handle_Arrival
         _stock.Should().BeEquivalentTo(
         new
         {
-            Quantities = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
             },
@@ -33,9 +33,9 @@ public class Stock_Handle_Arrival
             {
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(100), },
                     },
                 },
             },
@@ -46,16 +46,16 @@ public class Stock_Handle_Arrival
     public void Arrival_Existing_Type()
     {
         // Arrange
-        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new Quantity(100))]));
+        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new(100))]));
 
         // Act
-        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new Quantity(100))]));
+        _stock.Handle(new ArrivalEvent([new(_taxStampTypeId, new(100))]));
 
         // Assert
         _stock.Should().BeEquivalentTo(
         new
         {
-            Quantities = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(200), },
             },
@@ -64,16 +64,16 @@ public class Stock_Handle_Arrival
             {
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(100), }
                     },
                 },
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(100), }
                     },
                 }
             },
@@ -94,7 +94,7 @@ public class Stock_Handle_Arrival
         _stock.Should().BeEquivalentTo(
         new
         {
-            Quantities = new object[]
+            Items = new object[]
             {
                 new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), },
                 new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), },
@@ -104,16 +104,16 @@ public class Stock_Handle_Arrival
             {
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(100), }
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(100), }
                     },
                 },
                 new
                 {
-                    Quantities = new object[]
+                    Items = new object[]
                     {
-                        new { TaxStampTypeId = otherTaxStampTypeId, Quantity = new Quantity(100), }
+                        new { TaxStampTypeId = otherTaxStampTypeId, QuantityChange = new QuantityChange(100), }
                     },
                 }
             },
