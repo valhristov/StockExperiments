@@ -14,14 +14,12 @@ public sealed class StockItem
     public void Apply(QuantityChange quantityChange)
     {
         if (!CanApply(quantityChange)) throw new InvalidOperationException();
-        Quantity = new Quantity(Quantity.Value + quantityChange.Value);
+        Quantity = new Quantity(Quantity + quantityChange);
     }
 
     public bool CanApply(QuantityChange quantityChange) =>
-        Quantity.Value + quantityChange.Value >= 0;
+        Quantity >= -quantityChange;
 
-    internal bool CanReserve(Quantity toReserveQuantity, Quantity reservedQuantity)
-    {
-        throw new NotImplementedException();
-    }
+    internal bool CanReserve(Quantity toReserveQuantity) =>
+        Quantity >= toReserveQuantity;
 }
