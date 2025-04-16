@@ -22,16 +22,10 @@ public class StockTransaction
     public DispatchEventId? DispatchEventId { get; private set; }
     public ArrivalEventId? ArrivalEventId { get; private set; }
 
-    public static StockTransaction CreateArrival(ArrivalEventId arrivalEventId, TaxStampQuantitySet quantities) =>
-        new(StockTransactionType.Arrival,
-            quantities.Select(StockTransactionItem.CreateArrival),
-            null,
-            arrivalEventId);
-
-    public static StockTransaction CreateArrivalCorrection(ArrivalEventId arrivalEventId, 
-        IEnumerable<StockTransactionItem> existingTransactionItems, TaxStampQuantitySet quantities)
+    public static StockTransaction CreateArrival(ArrivalEventId arrivalEventId, 
+        IEnumerable<StockTransactionItem> existingTransactionItems, TaxStampQuantitySet newQuantities)
     {
-        var correctedQuantities = quantities.FullOuterGroupJoin(existingTransactionItems,
+        var correctedQuantities = newQuantities.FullOuterGroupJoin(existingTransactionItems,
             q => q.TaxStampTypeId,
             i => i.TaxStampTypeId,
             (q, i, taxStampTypeId) =>
@@ -44,7 +38,7 @@ public class StockTransaction
         return new StockTransaction(StockTransactionType.Arrival,
             correctedQuantities
                 .Where(x => QuantityChanged(x.NewQuantity, x.ExistingChange))
-                .Select(x => StockTransactionItem.CreateArrivalCorrection(x.TaxStampTypeId, x.ExistingChange, x.NewQuantity)),
+                .Select(x => StockTransactionItem.CreateArrival(x.TaxStampTypeId, x.ExistingChange, x.NewQuantity)),
             null,
             arrivalEventId);
 

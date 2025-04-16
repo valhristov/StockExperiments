@@ -57,9 +57,10 @@ public class Stock
             .Where(x => x.ArrivalEventId == arrival.ArrivalEventId)
             .SelectMany(x => x.Items);
 
-        var transaction = existingTransactionItems.Any()
-            ? StockTransaction.CreateArrivalCorrection(arrival.ArrivalEventId, existingTransactionItems, arrival.Quantities)
-            : StockTransaction.CreateArrival(arrival.ArrivalEventId, arrival.Quantities);
+        var transaction = StockTransaction.CreateArrival(
+            arrival.ArrivalEventId,
+            existingTransactionItems,
+            arrival.Quantities);
 
         _items.AddRange(GetNotExistingTaxStampTypeIds(arrival.Quantities).Select(x => new StockItem(x)));
 
