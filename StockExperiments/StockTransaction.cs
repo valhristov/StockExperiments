@@ -1,5 +1,4 @@
 ﻿
-
 namespace StockExperiments;
 
 public class StockTransaction
@@ -22,35 +21,18 @@ public class StockTransaction
     public DispatchEventId? DispatchEventId { get; private set; }
     public ArrivalEventId? ArrivalEventId { get; private set; }
 
-    public static StockTransaction CreateArrival(ArrivalEventId arrivalEventId, 
-        IEnumerable<StockTransactionItem> existingTransactionItems, TaxStampQuantitySet newQuantities)
-    {
-        var correctedQuantities = newQuantities.FullOuterGroupJoin(existingTransactionItems,
-            q => q.TaxStampTypeId,
-            i => i.TaxStampTypeId,
-            (q, i, taxStampTypeId) =>
-            (
-                NewQuantity: q.SingleOrDefault()?.Quantity,
-                ExistingChange: i.Any() ? new QuantityChange(i.Select(x => x.QuantityChange.Value).Sum()) : null,
-                TaxStampTypeId: taxStampTypeId
-            ));
-
-        return new StockTransaction(StockTransactionType.Arrival,
-            correctedQuantities
-                .Where(x => QuantityChanged(x.NewQuantity, x.ExistingChange))
-                .Select(x => StockTransactionItem.CreateArrival(x.TaxStampTypeId, x.ExistingChange, x.NewQuantity)),
+    public static StockTransaction CreateArrival(ArrivalEventId arrivalEventId, TaxStampQuantitySet quantities) =>
+        new (StockTransactionType.Arrival,
+            quantities.Select(q => StockTransactionItem.CreateArrival(q.TaxStampTypeId, q.Quantity)),
             null,
             arrivalEventId);
 
-        static bool QuantityChanged(Quantity? newQuantity, QuantityChange? existingChange) =>
-            newQuantity is null ||
-            existingChange is null ||
-            QuantityChange.PositiveChange(newQuantity) != existingChange;
-    }
-
     public static StockTransaction CreateDispatch(DispatchEventId dispatchEventId, TaxStampQuantitySet quantities) =>
         new(StockTransactionType.Dispatch,
-            quantities.Select(StockTransactionItem.CreateDispatch),
+            quantities.Select(q => StockTransactionItem.CreateDispatch(q.TaxStampTypeId, q.Quantity)),
             dispatchEventId,
             null);
+
+    public StockTransaction CreateRevert() =>
+        new(Type, Items.Select(x => x.CreateRevert()), DispatchEventId, ArrivalEventId);
 }

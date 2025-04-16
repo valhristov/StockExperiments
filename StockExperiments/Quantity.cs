@@ -3,8 +3,7 @@
 namespace StockExperiments;
 
 public sealed class Quantity : SimpleValueObject<int, Quantity>,
-    IAdditionOperators<Quantity, QuantityChange, Quantity>,
-    ISubtractionOperators<Quantity, QuantityChange, QuantityChange>
+    IAdditionOperators<Quantity, QuantityChange, Quantity>
 {
     public Quantity(int value) : base(value)
     {
@@ -18,9 +17,6 @@ public sealed class Quantity : SimpleValueObject<int, Quantity>,
 
     public static Quantity operator +(Quantity left, QuantityChange right) =>
         new(left.Value + right.Value);
-
-    public static QuantityChange operator -(Quantity left, QuantityChange right) =>
-        new(left.Value - right.Value);
 
     public static bool operator <(Quantity left, Quantity right) =>
         left.Value < Math.Abs(right.Value);

@@ -79,9 +79,52 @@ public class Stock_Handle_DispatchEvent
             ]));
 
         // Assert
-        result.Should().BeFalse();
+        result.Should().BeTrue();
 
-        Stock_Not_Changed();
+        _stock.Should().BeEquivalentTo(
+        new
+        {
+            Items = new object[]
+            {
+                new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(OriginalQuantity - 1), },
+            },
+            Reservations = new object[]
+            {
+                new
+                {
+                    Status = StockReservationStatus.Active,
+                    OriginalItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                    RemainingItems = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, Quantity = new Quantity(ReservedQuantity), },
+                    },
+                },
+            },
+            Transactions = new object[]
+            {
+                new
+                {
+                    DispatchEventId = default(DispatchEventId?),
+                    ArrivalEventId = _arrivalEventId,
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
+                    },
+                },
+                new
+                {
+                    DispatchEventId = _dispatchEventId,
+                    ArrivalEventId = default(ArrivalEventId?),
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-1), },
+                    },
+                },
+            },
+        });
     }
 
     [Theory]

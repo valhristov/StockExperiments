@@ -53,13 +53,10 @@ public class Stock
 
     public bool Handle(ArrivalEvent arrival)
     {
-        var existingTransactionItems = Transactions
-            .Where(x => x.ArrivalEventId == arrival.ArrivalEventId)
-            .SelectMany(x => x.Items);
+        RevertLastTransaction();
 
         var transaction = StockTransaction.CreateArrival(
             arrival.ArrivalEventId,
-            existingTransactionItems,
             arrival.Quantities);
 
         _items.AddRange(GetNotExistingTaxStampTypeIds(arrival.Quantities).Select(x => new StockItem(x)));
@@ -71,6 +68,53 @@ public class Stock
 
         _transactions.Add(transaction);
         return true;
+
+        void RevertLastTransaction()
+        {
+            var revertTransaction = Transactions
+                .LastOrDefault(x => x.ArrivalEventId == arrival.ArrivalEventId)
+                ?.CreateRevert();
+
+            if (revertTransaction != null)
+            {
+                Apply(revertTransaction);
+
+                _transactions.Add(revertTransaction);
+            }
+        }
+    }
+
+    public bool Handle(DispatchEvent dispatch)
+    {
+        RevertLastTransaction();
+
+        var transaction = StockTransaction.CreateDispatch(dispatch.DispatchEventId, dispatch.Quantities);
+
+        if (!Apply(transaction))
+        {
+            return false;
+        }
+
+        _transactions.Add(transaction);
+
+        var reservation = _reservations.SingleOrDefault(x => x.WithdrawalRequestId == dispatch.WithdrawalRequestId);
+        reservation?.Release(dispatch.Quantities);
+
+        return true;
+
+        void RevertLastTransaction()
+        {
+            var revertTransaction = Transactions
+                .LastOrDefault(x => x.DispatchEventId == dispatch.DispatchEventId)
+                ?.CreateRevert();
+
+            if (revertTransaction != null)
+            {
+                Apply(revertTransaction);
+
+                _transactions.Add(revertTransaction);
+            }
+        }
     }
 
     private IEnumerable<TaxStampTypeId> GetNotExistingTaxStampTypeIds(IReadOnlyCollection<TaxStampQuantity> quantities) =>
@@ -97,26 +141,6 @@ public class Stock
             item.StockItem!.Apply(item.QuantityChange);
         }
 
-        return true;
-    }
-
-    public bool Handle(DispatchEvent dispatch)
-    {
-        var reservation = _reservations.FirstOrDefault(x => x.WithdrawalRequestId == dispatch.WithdrawalRequestId);
-        if (reservation is null)
-        {
-            return false;
-        }
-
-        var transaction = StockTransaction.CreateDispatch(dispatch.DispatchEventId, dispatch.Quantities);
-
-        if (!Apply(transaction))
-        {
-            return false;
-        }
-
-        reservation.Release(dispatch.Quantities);
-        _transactions.Add(transaction);
         return true;
     }
 

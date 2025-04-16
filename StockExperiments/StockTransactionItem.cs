@@ -14,12 +14,12 @@ public class StockTransactionItem
     public TaxStampTypeId TaxStampTypeId { get; private set; }
     public QuantityChange QuantityChange { get; private set; }
 
-    public static StockTransactionItem CreateDispatch(TaxStampQuantity quantity) =>
-        new(quantity.TaxStampTypeId, QuantityChange.NegativeChange(quantity.Quantity));
+    public static StockTransactionItem CreateDispatch(TaxStampTypeId taxStampTypeId, Quantity newQuantity) =>
+        new(taxStampTypeId, QuantityChange.NegativeChange(newQuantity));
 
-    public static StockTransactionItem CreateArrival(TaxStampTypeId taxStampTypeId, QuantityChange? existingChange, Quantity? newQuantity) =>
-        new(taxStampTypeId,
-            existingChange is null
-            ? QuantityChange.PositiveChange(newQuantity!)
-            : (newQuantity ?? Quantity.Zero) - existingChange);
+    public static StockTransactionItem CreateArrival(TaxStampTypeId taxStampTypeId, Quantity newQuantity) =>
+        new(taxStampTypeId, QuantityChange.PositiveChange(newQuantity));
+
+    public StockTransactionItem CreateRevert() =>
+        new(TaxStampTypeId, new QuantityChange(-QuantityChange));
 }

@@ -47,17 +47,25 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
-                new
+                new // arrival 2
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
                     {
                         new { TaxStampTypeId = newTaxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
+                    },
+                },
+                new // arrival 1 revert
+                {
+                    DispatchEventId = default(DispatchEventId?),
+                    ArrivalEventId = _arrivalEventId,
+                    Items = new object[]
+                    {
                         new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-OriginalQuantity), },
                     },
                 },
-                new
+                new // arrival 1
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
@@ -95,16 +103,25 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
-                new
+                new // arrival 2
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(newQuantity - OriginalQuantity), },
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(newQuantity), },
                     },
                 },
-                new
+                new // arrival 1 revert
+                {
+                    DispatchEventId = default(DispatchEventId?),
+                    ArrivalEventId = _arrivalEventId,
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-OriginalQuantity), },
+                    },
+                },
+                new // arrival 1
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
@@ -138,13 +155,25 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
-                new
+                new // arrival 2
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
-                    Items = Array.Empty<object>(), // no changes
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), },
+                    },
                 },
-                new
+                new // arrival 1 revert
+                {
+                    DispatchEventId = default(DispatchEventId?),
+                    ArrivalEventId = _arrivalEventId,
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-OriginalQuantity), },
+                    },
+                },
+                new // arrival 1
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
@@ -161,14 +190,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
     public void Same_Arrival_Updated_More_Than_Once()
     {
         // Arrange
-        const int NewQuantity1 = 11;
-        _stock.Handle(new ArrivalEvent(
-            _arrivalEventId,
-            [
-                new (_taxStampTypeId, new Quantity(NewQuantity1)),
-            ]));
-
-        const int NewQuantity2 = 222;
+        const int NewQuantity2 = 11;
         _stock.Handle(new ArrivalEvent(
             _arrivalEventId,
             [
@@ -176,7 +198,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             ]));
 
         // Act
-        const int NewQuantity3 = 555;
+        const int NewQuantity3 = 222;
         _stock.Handle(new ArrivalEvent(
             _arrivalEventId,
             [
@@ -194,34 +216,43 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             Reservations = Array.Empty<object>(),
             Transactions = new object[]
             {
-                new
+                new // arrival 3
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(NewQuantity3 - NewQuantity2), }
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(NewQuantity3), }
                     },
                 },
-                new
+                new // arrival 2 revert
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(NewQuantity2 - NewQuantity1), }
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-NewQuantity2), }
                     },
                 },
-                new
+                new // arrival 2
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(NewQuantity1 - OriginalQuantity), }
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(NewQuantity2), }
                     },
                 },
-                new
+                new // arrival 1 revert
+                {
+                    DispatchEventId = default(DispatchEventId?),
+                    ArrivalEventId = _arrivalEventId,
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-OriginalQuantity), }
+                    },
+                },
+                new // arrival 1
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
@@ -271,10 +302,19 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
                     {
-                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(NewQuantity - OriginalQuantity), }
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(NewQuantity), }
                     },
                 },
-                new
+                new // arrival 1 revert
+                {
+                    DispatchEventId = default(DispatchEventId?),
+                    ArrivalEventId = _arrivalEventId,
+                    Items = new object[]
+                    {
+                        new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(-OriginalQuantity), }
+                    },
+                },
+                new // arrival 1
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
@@ -283,7 +323,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                         new { TaxStampTypeId = _taxStampTypeId, QuantityChange = new QuantityChange(OriginalQuantity), }
                     },
                 },
-                new
+                new // another arrival
                 {
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = otherArrivalEventId,
