@@ -11,7 +11,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
 
     public Stock_Handle_ArrivalEvent_More_Than_Once()
     {
-        _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
+        _stock = Stock.Create(new DistributionCenterKey(Guid.NewGuid()));
 
         _arrivalEventId = new ArrivalEventId(Guid.NewGuid());
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());

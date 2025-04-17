@@ -7,25 +7,36 @@ public class Stock
     private readonly List<StockTransaction> _transactions = new();
     private readonly List<StockReservation> _reservations = new();
 
-    private Stock(ScanningLocationId scanningLocationId)
+#pragma warning disable CS8618
+    private Stock() { } // For EF
+#pragma warning restore CS8618
+
+    private Stock(StockId id, DistributionCenterKey distributionCenterKey)
     {
-        ScanningLocationId = scanningLocationId;
+        Id = id;
+        DistributionCenterKey = distributionCenterKey;
     }
 
-    public ScanningLocationId ScanningLocationId { get; private set; }
-
+    public StockId Id { get; private set; }
+    public DistributionCenterKey DistributionCenterKey { get; private set; }
     public IReadOnlyCollection<StockItem> Items => _items;
     public IReadOnlyCollection<StockTransaction> Transactions => _transactions;
     public IReadOnlyCollection<StockReservation> Reservations => _reservations;
+    public byte[] Version { get; private set; } = null!; // set by EF
 
-    public bool Reserve(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantitiesToReserve)
+    public static Stock Create(DistributionCenterKey distributionCenterKey)
     {
-        if (!CanReserve(quantitiesToReserve))
+        return new Stock(new StockId(Guid.NewGuid()), distributionCenterKey);
+    }
+
+    public bool Reserve(WithdrawalRequestId withdrawalRequestId, TaxStampQuantitySet quantities)
+    {
+        if (!CanReserve(quantities))
         {
             return false;
         }
 
-        _reservations.Add(StockReservation.Create(withdrawalRequestId, quantitiesToReserve));
+        _reservations.Add(StockReservation.Create(withdrawalRequestId, quantities));
 
         return true;
 
@@ -89,7 +100,7 @@ public class Stock
         return true;
     }
 
-    void RevertLastTransaction(Func<StockTransaction, bool> condition)
+    private void RevertLastTransaction(Func<StockTransaction, bool> condition)
     {
         var revertTransaction = Transactions
             .Where(x => x.Type != StockTransactionType.Revert)
@@ -129,10 +140,5 @@ public class Stock
         }
 
         return true;
-    }
-
-    public static Stock Create(ScanningLocationId scanningLocationId)
-    {
-        return new Stock(scanningLocationId);
     }
 }

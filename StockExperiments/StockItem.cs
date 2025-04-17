@@ -2,22 +2,30 @@
 
 public sealed class StockItem
 {
-    public StockItem(TaxStampTypeId taxStampTypeId)
+#pragma warning disable CS0169
+    private int _id;
+#pragma warning restore CS0169
+#pragma warning disable CS8618
+    private StockItem() { } // required by EF
+#pragma warning restore CS8618
+
+    internal StockItem(TaxStampTypeId taxStampTypeId)
     {
         TaxStampTypeId = taxStampTypeId;
-        Quantity = new Quantity(0);
+        Quantity = Quantity.Zero;
     }
 
     public TaxStampTypeId TaxStampTypeId { get; private set; }
     public Quantity Quantity { get; private set; }
+    public byte[] Version { get; private set; } = null!; // set by EF
 
-    public void Apply(QuantityChange quantityChange)
+    internal void Apply(QuantityChange quantityChange)
     {
         if (!CanApply(quantityChange)) throw new InvalidOperationException();
         Quantity = new Quantity(Quantity + quantityChange);
     }
 
-    public bool CanApply(QuantityChange quantityChange) =>
+    internal bool CanApply(QuantityChange quantityChange) =>
         Quantity >= -quantityChange;
 
     internal bool CanReserve(Quantity toReserveQuantity) =>

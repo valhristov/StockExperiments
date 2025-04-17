@@ -19,7 +19,7 @@ public class Stock_Handle_DispatchEvent
         _dispatchEventId = new DispatchEventId(Guid.NewGuid());
         _arrivalEventId = new ArrivalEventId(Guid.NewGuid());
 
-        _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
+        _stock = Stock.Create(new DistributionCenterKey(Guid.NewGuid()));
         _stock.Handle(new ArrivalEvent(
             _arrivalEventId,
             [

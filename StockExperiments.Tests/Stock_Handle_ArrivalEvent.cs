@@ -9,7 +9,7 @@ public class Stock_Handle_ArrivalEvent
 
     public Stock_Handle_ArrivalEvent()
     {
-        _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
+        _stock = Stock.Create(new DistributionCenterKey(Guid.NewGuid()));
 
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
     }

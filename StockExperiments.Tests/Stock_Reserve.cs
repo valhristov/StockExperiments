@@ -15,7 +15,7 @@ public class Stock_Reserve
         _taxStampTypeId = new TaxStampTypeId(Guid.NewGuid());
         _arrivalEventId = new ArrivalEventId(Guid.NewGuid());
 
-        _stock = Stock.Create(new ScanningLocationId(Guid.NewGuid()));
+        _stock = Stock.Create(new DistributionCenterKey(Guid.NewGuid()));
         _stock.Handle(new ArrivalEvent(
             _arrivalEventId,
             [
