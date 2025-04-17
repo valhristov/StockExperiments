@@ -49,6 +49,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             {
                 new // arrival 2
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -58,6 +59,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1 revert
                 {
+                    Type = StockTransactionType.Revert,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -67,6 +69,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -105,6 +108,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             {
                 new // arrival 2
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -114,6 +118,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1 revert
                 {
+                    Type = StockTransactionType.Revert,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -123,6 +128,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -157,6 +163,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             {
                 new // arrival 2
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -166,6 +173,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1 revert
                 {
+                    Type = StockTransactionType.Revert,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -175,6 +183,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -218,6 +227,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             {
                 new // arrival 3
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -227,6 +237,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 2 revert
                 {
+                    Type = StockTransactionType.Revert,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -236,6 +247,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 2
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -245,6 +257,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1 revert
                 {
+                    Type = StockTransactionType.Revert,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -254,6 +267,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -298,6 +312,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
             {
                 new
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -307,6 +322,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1 revert
                 {
+                    Type = StockTransactionType.Revert,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -316,6 +332,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // arrival 1
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = _arrivalEventId,
                     Items = new object[]
@@ -325,6 +342,7 @@ public class Stock_Handle_ArrivalEvent_More_Than_Once
                 },
                 new // another arrival
                 {
+                    Type = StockTransactionType.Arrival,
                     DispatchEventId = default(DispatchEventId?),
                     ArrivalEventId = otherArrivalEventId,
                     Items = new object[]

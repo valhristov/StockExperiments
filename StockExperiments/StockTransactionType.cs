@@ -2,6 +2,7 @@
 
 public enum StockTransactionType
 {
-    Arrival,
-    Dispatch,
+    Arrival = 1,
+    Dispatch = 2,
+    Revert = 3,
 }

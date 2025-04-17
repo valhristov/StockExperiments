@@ -34,5 +34,5 @@ public class StockTransaction
             null);
 
     public StockTransaction CreateRevert() =>
-        new(Type, Items.Select(x => x.CreateRevert()), DispatchEventId, ArrivalEventId);
+        new(StockTransactionType.Revert, Items.Select(x => x.CreateRevert()), DispatchEventId, ArrivalEventId);
 }

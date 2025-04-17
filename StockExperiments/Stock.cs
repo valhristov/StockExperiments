@@ -53,7 +53,7 @@ public class Stock
 
     public bool Handle(ArrivalEvent arrival)
     {
-        RevertLastTransaction();
+        RevertLastTransaction(x => x.ArrivalEventId == arrival.ArrivalEventId);
 
         var transaction = StockTransaction.CreateArrival(
             arrival.ArrivalEventId,
@@ -68,25 +68,11 @@ public class Stock
 
         _transactions.Add(transaction);
         return true;
-
-        void RevertLastTransaction()
-        {
-            var revertTransaction = Transactions
-                .LastOrDefault(x => x.ArrivalEventId == arrival.ArrivalEventId)
-                ?.CreateRevert();
-
-            if (revertTransaction != null)
-            {
-                Apply(revertTransaction);
-
-                _transactions.Add(revertTransaction);
-            }
-        }
     }
 
     public bool Handle(DispatchEvent dispatch)
     {
-        RevertLastTransaction();
+        RevertLastTransaction(x => x.DispatchEventId == dispatch.DispatchEventId);
 
         var transaction = StockTransaction.CreateDispatch(dispatch.DispatchEventId, dispatch.Quantities);
 
@@ -101,19 +87,20 @@ public class Stock
         reservation?.Release(dispatch.Quantities);
 
         return true;
+    }
 
-        void RevertLastTransaction()
+    void RevertLastTransaction(Func<StockTransaction, bool> condition)
+    {
+        var revertTransaction = Transactions
+            .Where(x => x.Type != StockTransactionType.Revert)
+            .LastOrDefault(condition)
+            ?.CreateRevert();
+
+        if (revertTransaction != null)
         {
-            var revertTransaction = Transactions
-                .LastOrDefault(x => x.DispatchEventId == dispatch.DispatchEventId)
-                ?.CreateRevert();
+            Apply(revertTransaction);
 
-            if (revertTransaction != null)
-            {
-                Apply(revertTransaction);
-
-                _transactions.Add(revertTransaction);
-            }
+            _transactions.Add(revertTransaction);
         }
     }
 
